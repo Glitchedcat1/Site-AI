@@ -1,0 +1,32 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 20px;
+}
+
+#chatbot-box {
+    border: 1px solid #ccc;
+    padding: 10px;
+    background: white;
+    display: none; /* Initially hidden */
+}
+
+.hidden {
+    display: none;
+}
+
+#character-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+#chat-input {
+    width: 70%;
+    padding: 10px;
+}
+
+button {
+    padding: 10px;
+}
