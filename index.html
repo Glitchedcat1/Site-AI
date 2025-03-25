@@ -30,6 +30,7 @@
             padding: 10px;
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            display: none; /* Initially hidden */
         }
         #userInput {
             width: calc(100% - 22px);
@@ -37,6 +38,7 @@
             margin-top: 10px;
             border-radius: 5px;
             border: 1px solid #ccc;
+            display: none; /* Initially hidden */
         }
         button {
             padding: 10px 20px;
@@ -50,35 +52,78 @@
         button:hover {
             background-color: #45a049;
         }
-        .keyboard {
+        #keyboard {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
             margin-top: 10px;
+            display: none; /* Initially hidden */
         }
         .key {
-            padding: 10px;
-            margin: 5px;
-            background-color: #f0f0f0;
-            border: 1px solid #ccc;
+            padding: 10px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
             border-radius: 5px;
             cursor: pointer;
-            display: inline-block;
+        }
+        .key:hover {
+            background-color: #45a049;
+        }
+        #character {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        #character img {
+            width: 150px;
+            height: auto;
+            border-radius: 50%;
+        }
+        #startButton {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
     </style>
 </head>
 <body>
     <h1>Math Help Bot</h1>
+    <div id="character">
+        <img src="character-face.png" alt="Math Help Bot Character">
+    </div>
+    <div id="startButton">
+        <button onclick="startChat()">Chat with Math Help Bot</button>
+    </div>
     <div id="chatbox"></div>
     <input type="text" id="userInput" placeholder="Ask me a math question or type an equation...">
-    <button onclick="sendMessage()">Send</button>
-
-    <div class="keyboard">
-        <div class="key" onclick="appendToInput('+')">+</div>
-        <div class="key" onclick="appendToInput('-')">-</div>
-        <div class="key" onclick="appendToInput('*')">*</div>
-        <div class="key" onclick="appendToInput('/')">/</div>
-        <div class="key" onclick="appendToInput('%')">%</div>
+    <div id="keyboard">
+        <button class="key" onclick="addToInput('+')">+</button>
+        <button class="key" onclick="addToInput('-')">-</button>
+        <button class="key" onclick="addToInput('*')">×</button>
+        <button class="key" onclick="addToInput('/')">÷</button>
+        <button class="key" onclick="addToInput('%')">%</button>
     </div>
+    <button id="sendButton" onclick="sendMessage()" style="display: none;">Send</button>
+
+    <audio id="welcomeAudio" src="welcome.mp3"></audio>
 
     <script>
+        function startChat() {
+            // Hide the character and start button
+            document.getElementById('character').style.display = 'none';
+            document.getElementById('startButton').style.display = 'none';
+
+            // Show the chatbot elements
+            document.getElementById('chatbox').style.display = 'block';
+            document.getElementById('userInput').style.display = 'block';
+            document.getElementById('keyboard').style.display = 'flex';
+            document.getElementById('sendButton').style.display = 'block';
+
+            // Play the welcome audio
+            const audio = document.getElementById('welcomeAudio');
+            audio.play();
+        }
+
         function sendMessage() {
             const input = document.getElementById('userInput');
             const chatbox = document.getElementById('chatbox');
@@ -95,19 +140,12 @@
             }
         }
 
-        function appendToInput(value) {
-            const input = document.getElementById('userInput');
-            input.value += value;
-        }
-
         function getBotResponse(message) {
             try {
-                // Check if the message is a math equation
                 if (isMathEquation(message)) {
                     const result = solveEquation(message);
-                    return `The result is: ${result}. Here's how I solved it:<br>${generateSteps(message)}`;
+                    return `The result is: ${result}.`;
                 } else {
-                    // If it's not a math equation, respond conversationally
                     return handleConversation(message);
                 }
             } catch (error) {
@@ -116,69 +154,31 @@
         }
 
         function isMathEquation(message) {
-            // Check if the message contains math operators
             return /[+\-*/%]/.test(message);
         }
 
         function solveEquation(equation) {
-            // Remove spaces from the equation
             equation = equation.replace(/\s+/g, '');
-
-            // Validate the equation (only numbers and basic operators allowed)
             if (!/^[0-9+\-*/%().]+$/.test(equation)) {
                 throw new Error("Invalid equation");
             }
-
-            // Handle percentage calculation
-            if (equation.includes('%')) {
-                const parts = equation.split('%');
-                const number = parseFloat(parts[0]);
-                const percentage = parseFloat(parts[1]) / 100;
-                return number * percentage;
-            }
-
-            // Evaluate the equation
-            return eval(equation); // Use eval to calculate the result (be cautious with eval in production)
-        }
-
-        function generateSteps(equation) {
-            // Example: Generate steps for solving the equation
-            let steps = `1. Start with the equation: ${equation}<br>`;
-
-            // Break down the equation into steps (basic example)
-            if (equation.includes('+')) {
-                const parts = equation.split('+');
-                steps += `2. Add ${parts[0]} and ${parts[1]} together.<br>`;
-            } else if (equation.includes('-')) {
-                const parts = equation.split('-');
-                steps += `2. Subtract ${parts[1]} from ${parts[0]}.<br>`;
-            } else if (equation.includes('*')) {
-                const parts = equation.split('*');
-                steps += `2. Multiply ${parts[0]} by ${parts[1]}.<br>`;
-            } else if (equation.includes('/')) {
-                const parts = equation.split('/');
-                steps += `2. Divide ${parts[0]} by ${parts[1]}.<br>`;
-            } else if (equation.includes('%')) {
-                const parts = equation.split('%');
-                steps += `2. Calculate ${parts[0]} times ${parts[1]} divided by 100.<br>`;
-            }
-
-            steps += `3. Final result: ${eval(equation)}<br>`;
-            return steps;
+            return eval(equation);
         }
 
         function handleConversation(message) {
-            // Basic conversational responses
             const lowerMessage = message.toLowerCase();
             if (lowerMessage.includes('hello') || lowerMessage.includes('hi')) {
                 return "Hello! How can I assist you with math today?";
-            } else if (lowerMessage.includes('how are you')) {
-                return "I'm just a bot, but I'm here to help you with math! How can I assist?";
             } else if (lowerMessage.includes('thank you')) {
                 return "You're welcome! Let me know if you have more questions.";
             } else {
                 return "I'm here to help with math or answer your questions. What would you like to know?";
             }
+        }
+
+        function addToInput(symbol) {
+            const input = document.getElementById('userInput');
+            input.value += symbol;
         }
     </script>
 </body>
