@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Math Help</title>
+    <title>Math Help Bot</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
+            background-color: #e0f7fa;
             padding: 20px;
         }
         #chatbox {
@@ -18,7 +18,7 @@
             overflow-y: scroll;
             background: white;
             padding: 10px;
-            display: none;
+            margin-bottom: 10px;
         }
         #userInput {
             width: calc(100% - 22px);
@@ -27,51 +27,56 @@
         }
         button {
             padding: 10px;
-            margin: 5px;
+            background-color: #00796b;
+            color: white;
+            border: none;
+            cursor: pointer;
         }
-        #mathKeyboard button {
-            padding: 5px 10px;
+        button:hover {
+            background-color: #004d40;
+        }
+        .keyboard {
+            margin-top: 10px;
+        }
+        .key {
+            padding: 10px;
+            background-color: #4db6ac;
+            color: white;
+            border: none;
+            cursor: pointer;
             margin: 2px;
         }
     </style>
 </head>
 <body>
-    <h1>Math Help</h1>
-    <button id="openChatbot" onclick="openChatbot()">Math Help Chatbot</button>
-    <audio id="welcomeAudio" src="welcome.mp3"></audio>
+    <h1>Math Help Bot</h1>
+    <button id="openChat" onclick="openChat()">Math Help Chatbot</button>
+    <div id="chatbox" style="display:none;"></div>
+    <input type="text" id="userInput" placeholder="Enter a math equation (e.g., 2+2 or 3*4)...">
+    <button onclick="sendMessage()">Send</button>
 
-    <div id="chatbox">
-        <div id="messages"></div>
-        <input type="text" id="userInput" placeholder="Enter a math equation (e.g., 2+2 or 3*4)...">
-        <div id="mathKeyboard">
-            <button onclick="insertSymbol('+')">+</button>
-            <button onclick="insertSymbol('-')">-</button>
-            <button onclick="insertSymbol('*')">*</button>
-            <button onclick="insertSymbol('/')">/</button>
-            <button onclick="insertSymbol('%')">%</button>
-        </div>
-        <button onclick="sendMessage()">Send</button>
+    <div class="keyboard" style="display:none;">
+        <button class="key" onclick="addToInput('+')">+</button>
+        <button class="key" onclick="addToInput('-')">-</button>
+        <button class="key" onclick="addToInput('*')">*</button>
+        <button class="key" onclick="addToInput('/')">/</button>
+        <button class="key" onclick="addToInput('%')">%</button>
     </div>
 
+    <audio id="welcomeAudio" src="welcome.mp3"></audio>
+
     <script>
-        function openChatbot() {
-            const chatbox = document.getElementById('chatbox');
-            const messages = document.getElementById('messages');
-            const welcomeAudio = document.getElementById('welcomeAudio');
-
-            chatbox.style.display = 'block';
-            welcomeAudio.play();
-            messages.innerHTML += `<div>Math Help Bot: Welcome to Math Help!</div>`;
-        }
-
-        function insertSymbol(symbol) {
-            const input = document.getElementById('userInput');
-            input.value += symbol;
+        function openChat() {
+            document.getElementById('openChat').style.display = 'none';
+            document.getElementById('chatbox').style.display = 'block';
+            document.querySelector('.keyboard').style.display = 'block';
+            document.getElementById('welcomeAudio').play();
+            addBotMessage("Welcome to Math Help!");
         }
 
         function sendMessage() {
             const input = document.getElementById('userInput');
-            const chatbox = document.getElementById('messages');
+            const chatbox = document.getElementById('chatbox');
             const userMessage = input.value;
 
             if (userMessage) {
@@ -80,9 +85,14 @@
 
                 // Generate bot response
                 const botResponse = getBotResponse(userMessage);
-                chatbox.innerHTML += `<div>Math Help Bot: ${botResponse}</div>`;
+                chatbox.innerHTML += `<div>Bot: ${botResponse}</div>`;
                 chatbox.scrollTop = chatbox.scrollHeight; // Scroll to the bottom
             }
+        }
+
+        function addToInput(symbol) {
+            const input = document.getElementById('userInput');
+            input.value += symbol;
         }
 
         function getBotResponse(message) {
@@ -132,11 +142,17 @@
                 steps += `2. Divide ${parts[0]} by ${parts[1]}.<br>`;
             } else if (equation.includes('%')) {
                 const parts = equation.split('%');
-                steps += `2. Calculate ${parts[0]}% of ${parts[1]}.<br>`;
+                steps += `2. Calculate ${parts[0]} percent of ${parts[1]}.<br>`;
             }
 
             steps += `3. Final result: ${eval(equation)}<br>`;
             return steps;
+        }
+
+        function addBotMessage(message) {
+            const chatbox = document.getElementById('chatbox');
+            chatbox.innerHTML += `<div>Bot: ${message}</div>`;
+            chatbox.scrollTop = chatbox.scrollHeight; // Scroll to the bottom
         }
     </script>
 </body>
