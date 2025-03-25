@@ -57,6 +57,9 @@
     <div id="chatbox"></div>
     <input type="text" id="userInput" placeholder="Ask me a math question or type an equation...">
     <button onclick="sendMessage()">Send</button>
+    <button onclick="playWelcomeAudio()">Play Welcome</button> <!-- New button to play audio -->
+
+    <audio id="welcomeAudio" src="welcome.mp3"></audio> <!-- Audio element -->
 
     <script>
         function sendMessage() {
@@ -73,6 +76,11 @@
                 chatbox.innerHTML += `<div><strong>Math Help Bot:</strong> ${botResponse}</div>`;
                 chatbox.scrollTop = chatbox.scrollHeight; // Scroll to the bottom
             }
+        }
+
+        function playWelcomeAudio() {
+            const audio = document.getElementById('welcomeAudio');
+            audio.play(); // Play the welcome audio
         }
 
         function getBotResponse(message) {
