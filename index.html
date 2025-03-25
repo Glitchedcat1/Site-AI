@@ -7,7 +7,9 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #e0f7fa;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
+            background-size: cover;
+            color: #333;
             padding: 20px;
         }
         #chatbox {
@@ -18,60 +20,82 @@
             overflow-y: scroll;
             background: white;
             padding: 10px;
-            margin-bottom: 10px;
+            margin: 20px auto;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
         #userInput {
             width: calc(100% - 22px);
             padding: 10px;
             margin-top: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
         }
         button {
-            padding: 10px;
-            background-color: #00796b;
-            color: white;
+            padding: 10px 20px;
+            margin: 10px;
             border: none;
+            border-radius: 5px;
+            background-color: #4CAF50;
+            color: white;
             cursor: pointer;
         }
         button:hover {
-            background-color: #004d40;
+            background-color: #45a049;
+        }
+        #openChatbot {
+            display: block;
+            margin: 20px auto;
+            text-align: center;
         }
         .keyboard {
-            margin-top: 10px;
+            margin: 10px auto;
+            text-align: center;
         }
-        .key {
-            padding: 10px;
-            background-color: #4db6ac;
-            color: white;
-            border: none;
-            cursor: pointer;
-            margin: 2px;
+        .keyboard button {
+            margin: 5px;
+            width: 40px;
+            height: 40px;
+            font-size: 18px;
         }
     </style>
 </head>
 <body>
     <h1>Math Help Bot</h1>
-    <button id="openChat" onclick="openChat()">Math Help Chatbot</button>
-    <div id="chatbox" style="display:none;"></div>
-    <input type="text" id="userInput" placeholder="Enter a math equation (e.g., 2+2 or 3*4)...">
-    <button onclick="sendMessage()">Send</button>
-
-    <div class="keyboard" style="display:none;">
-        <button class="key" onclick="addToInput('+')">+</button>
-        <button class="key" onclick="addToInput('-')">-</button>
-        <button class="key" onclick="addToInput('*')">*</button>
-        <button class="key" onclick="addToInput('/')">/</button>
-        <button class="key" onclick="addToInput('%')">%</button>
-    </div>
-
+    <button id="openChatbot" onclick="openChatbot()">Open Math Help Chatbot</button>
     <audio id="welcomeAudio" src="welcome.mp3"></audio>
 
+    <div id="chatbox" style="display: none;"></div>
+    <div class="keyboard" style="display: none;">
+        <button onclick="insertSymbol('+')">+</button>
+        <button onclick="insertSymbol('-')">-</button>
+        <button onclick="insertSymbol('*')">*</button>
+        <button onclick="insertSymbol('/')">÷</button>
+        <button onclick="insertSymbol('%')">%</button>
+    </div>
+    <input type="text" id="userInput" placeholder="Enter a math equation or chat..." style="display: none;">
+    <button onclick="sendMessage()" style="display: none;" id="sendButton">Send</button>
+
     <script>
-        function openChat() {
-            document.getElementById('openChat').style.display = 'none';
+        function openChatbot() {
+            document.getElementById('openChatbot').style.display = 'none';
             document.getElementById('chatbox').style.display = 'block';
+            document.getElementById('userInput').style.display = 'block';
+            document.getElementById('sendButton').style.display = 'inline-block';
             document.querySelector('.keyboard').style.display = 'block';
-            document.getElementById('welcomeAudio').play();
-            addBotMessage("Welcome to Math Help!");
+
+            // Play welcome audio
+            const audio = document.getElementById('welcomeAudio');
+            audio.play();
+
+            // Display welcome message
+            const chatbox = document.getElementById('chatbox');
+            chatbox.innerHTML += `<div>Math Help Bot: Welcome to Math Help!</div>`;
+        }
+
+        function insertSymbol(symbol) {
+            const input = document.getElementById('userInput');
+            input.value += symbol;
         }
 
         function sendMessage() {
@@ -85,74 +109,57 @@
 
                 // Generate bot response
                 const botResponse = getBotResponse(userMessage);
-                chatbox.innerHTML += `<div>Bot: ${botResponse}</div>`;
+                chatbox.innerHTML += `<div>Math Help Bot: ${botResponse}</div>`;
                 chatbox.scrollTop = chatbox.scrollHeight; // Scroll to the bottom
             }
         }
 
-        function addToInput(symbol) {
-            const input = document.getElementById('userInput');
-            input.value += symbol;
-        }
-
         function getBotResponse(message) {
             try {
-                // Parse and solve the equation
-                const result = solveEquation(message);
-                return result;
+                // Check if the message is a math equation
+                if (message.includes('%')) {
+                    return calculatePercentage(message);
+                } else if (/[\d+\-*/()]/.test(message)) {
+                    return solveEquation(message);
+                } else {
+                    // Basic conversation
+                    return handleConversation(message);
+                }
             } catch (error) {
-                return "I couldn't understand that. Please enter a valid math equation.";
+                return "I couldn't understand that. Please enter a valid math equation or question.";
             }
         }
 
         function solveEquation(equation) {
-            // Remove spaces from the equation
-            equation = equation.replace(/\s+/g, '');
-
-            // Validate the equation (only numbers and basic operators allowed)
-            if (!/^[0-9+\-*/().%]+$/.test(equation)) {
+            equation = equation.replace(/\s+/g, ''); // Remove spaces
+            if (!/^[0-9+\-*/().]+$/.test(equation)) {
                 throw new Error("Invalid equation");
             }
-
-            // Evaluate the equation
-            const result = eval(equation); // Use eval to calculate the result (be cautious with eval in production)
-
-            // Generate step-by-step explanation
-            const steps = generateSteps(equation);
-
-            return `The result is: ${result}. Here's how I solved it:<br>${steps}`;
+            const result = eval(equation); // Evaluate the equation
+            return `The result is: ${result}`;
         }
 
-        function generateSteps(equation) {
-            // Example: Generate steps for solving the equation
-            let steps = `1. Start with the equation: ${equation}<br>`;
-
-            // Break down the equation into steps (basic example)
-            if (equation.includes('+')) {
-                const parts = equation.split('+');
-                steps += `2. Add ${parts[0]} and ${parts[1]} together.<br>`;
-            } else if (equation.includes('-')) {
-                const parts = equation.split('-');
-                steps += `2. Subtract ${parts[1]} from ${parts[0]}.<br>`;
-            } else if (equation.includes('*')) {
-                const parts = equation.split('*');
-                steps += `2. Multiply ${parts[0]} by ${parts[1]}.<br>`;
-            } else if (equation.includes('/')) {
-                const parts = equation.split('/');
-                steps += `2. Divide ${parts[0]} by ${parts[1]}.<br>`;
-            } else if (equation.includes('%')) {
-                const parts = equation.split('%');
-                steps += `2. Calculate ${parts[0]} percent of ${parts[1]}.<br>`;
+        function calculatePercentage(message) {
+            const match = message.match(/(\d+)%\s*of\s*(\d+)/i);
+            if (match) {
+                const percentage = parseFloat(match[1]);
+                const number = parseFloat(match[2]);
+                const result = (percentage / 100) * number;
+                return `${percentage}% of ${number} is ${result}`;
+            } else {
+                throw new Error("Invalid percentage format");
             }
-
-            steps += `3. Final result: ${eval(equation)}<br>`;
-            return steps;
         }
 
-        function addBotMessage(message) {
-            const chatbox = document.getElementById('chatbox');
-            chatbox.innerHTML += `<div>Bot: ${message}</div>`;
-            chatbox.scrollTop = chatbox.scrollHeight; // Scroll to the bottom
+        function handleConversation(message) {
+            const lowerMessage = message.toLowerCase();
+            if (lowerMessage.includes('hello') || lowerMessage.includes('hi')) {
+                return "Hello! How can I assist you with math today?";
+            } else if (lowerMessage.includes('thank you')) {
+                return "You're welcome! Let me know if you have more questions.";
+            } else {
+                return "I'm here to help with math! Try asking me a math question.";
+            }
         }
     </script>
 </body>
