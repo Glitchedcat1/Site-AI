@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple Chatbot</title>
+    <title>Math Help Chatbot</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -30,9 +30,9 @@
     </style>
 </head>
 <body>
-    <h1>Simple Chatbot</h1>
+    <h1>Calculator Chatbot</h1>
     <div id="chatbox"></div>
-    <input type="text" id="userInput" placeholder="Type your message here...">
+    <input type="text" id="userInput" placeholder="Enter a math equation (e.g., 2+2 or 3*4)...">
     <button onclick="sendMessage()">Send</button>
 
     <script>
@@ -45,7 +45,7 @@
                 chatbox.innerHTML += `<div>User: ${userMessage}</div>`;
                 input.value = '';
 
-                // Simple bot response
+                // Generate bot response
                 const botResponse = getBotResponse(userMessage);
                 chatbox.innerHTML += `<div>Bot: ${botResponse}</div>`;
                 chatbox.scrollTop = chatbox.scrollHeight; // Scroll to the bottom
@@ -53,13 +53,54 @@
         }
 
         function getBotResponse(message) {
-            // Simple responses based on user input
-            const responses = {
-                "hi": "Hello! How can I help you?",
-                "how are you?": "I'm just a bot, but thanks for asking!",
-                "bye": "Goodbye! Have a great day!",
-            };
-            return responses[message.toLowerCase()] || "I'm not sure how to respond to that.";
+            try {
+                // Parse and solve the equation
+                const result = solveEquation(message);
+                return result;
+            } catch (error) {
+                return "I couldn't understand that. Please enter a valid math equation.";
+            }
+        }
+
+        function solveEquation(equation) {
+            // Remove spaces from the equation
+            equation = equation.replace(/\s+/g, '');
+
+            // Validate the equation (only numbers and basic operators allowed)
+            if (!/^[0-9+\-*/().]+$/.test(equation)) {
+                throw new Error("Invalid equation");
+            }
+
+            // Evaluate the equation
+            const result = eval(equation); // Use eval to calculate the result (be cautious with eval in production)
+
+            // Generate step-by-step explanation
+            const steps = generateSteps(equation);
+
+            return `The result is: ${result}. Here's how I solved it:<br>${steps}`;
+        }
+
+        function generateSteps(equation) {
+            // Example: Generate steps for solving the equation
+            let steps = `1. Start with the equation: ${equation}<br>`;
+
+            // Break down the equation into steps (basic example)
+            if (equation.includes('+')) {
+                const parts = equation.split('+');
+                steps += `2. Add ${parts[0]} and ${parts[1]} together.<br>`;
+            } else if (equation.includes('-')) {
+                const parts = equation.split('-');
+                steps += `2. Subtract ${parts[1]} from ${parts[0]}.<br>`;
+            } else if (equation.includes('*')) {
+                const parts = equation.split('*');
+                steps += `2. Multiply ${parts[0]} by ${parts[1]}.<br>`;
+            } else if (equation.includes('/')) {
+                const parts = equation.split('/');
+                steps += `2. Divide ${parts[0]} by ${parts[1]}.<br>`;
+            }
+
+            steps += `3. Final result: ${eval(equation)}<br>`;
+            return steps;
         }
     </script>
 </body>
